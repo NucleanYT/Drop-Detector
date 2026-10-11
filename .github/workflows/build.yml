@@ -4,6 +4,8 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - run: unzip -o DropDetector.zip
@@ -18,7 +20,9 @@ jobs:
           gradle-version: "8.9"
       - run: gradle :app:assembleDebug --no-daemon
         working-directory: DropDetector
-      - uses: actions/upload-artifact@v4
+      - run: cp DropDetector/app/build/outputs/apk/debug/app-debug.apk DropDetector.apk
+      - uses: softprops/action-gh-release@v2
         with:
-          name: DropDetector-apk
-          path: DropDetector/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v${{ github.run_number }}
+          name: Drop Detector v${{ github.run_number }}
+          files: DropDetector.apk
